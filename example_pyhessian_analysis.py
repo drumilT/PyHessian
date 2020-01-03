@@ -67,7 +67,10 @@ parser.add_argument('--resume',
                     type=str,
                     default='',
                     help='get the checkpoint')
-
+parser.add_argument('--drop_top_k',
+                    type=float,
+                    default=None,
+                    help='drop this percent of weights sorted by magnitude')
 args = parser.parse_args()
 # set random seed to reproduce the work
 torch.manual_seed(args.seed)
@@ -117,6 +120,8 @@ if args.resume == '':
     raise ("please choose the trained model")
 model.load_state_dict(torch.load(args.resume))
 
+drop = args.drop_top_k
+
 ######################################################
 # Begin the computation
 ######################################################
@@ -137,5 +142,14 @@ else:
 print(
     '********** finish data londing and begin Hessian computation **********')
 
-trace = hessian_comp.trace()
-print('\n***Trace: ', np.mean(trace))
+names,traces = hessian_comp.trace()
+fout = open("trace_values","w")
+
+trace_dict = {}
+for name, trace in zip(names,traces):
+    print(name, trace.item())
+    trace_dict[name] = trace.item()
+    fout.write( str(name)+" " + str(trace.item))
+
+print(trace_dict)
+

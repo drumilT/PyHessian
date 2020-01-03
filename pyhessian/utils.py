@@ -31,7 +31,7 @@ def group_product(xs, ys):
     :param ys:
     :return:
     """
-    return sum([torch.sum(x * y) for (x, y) in zip(xs, ys)])
+    return [torch.sum(x * y) for (x, y) in zip(xs, ys)]
 
 
 def group_add(params, update, alpha=1):
@@ -73,7 +73,11 @@ def get_params_grad(model):
         names.append(name)
         params.append(param)
         grads.append(0. if param.grad is None else param.grad + 0.)
-    return name, params, grads
+
+    print("Names of Params",names)
+    print("Number of Params", len(names))
+
+    return names, params, grads
 
 
 def hessian_vector_product(gradsH, params, v):

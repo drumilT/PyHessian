@@ -175,6 +175,8 @@ class hessian():
                 torch.randint_like(p, high=2, device=device)
                 for p in self.params
             ]
+
+            #print("Len of v is", len(v)) 
             # generate Rademacher random variables
             for v_i in v:
                 v_i[v_i == 0] = -1
@@ -183,16 +185,17 @@ class hessian():
                 _, Hv = self.dataloader_hv_product(v)
             else:
                 Hv = hessian_vector_product(self.gradsH, self.params, v)
-            print("Shape of Hv is", Hv.shape)
-            gp = group_product(Hv, v).cpu().item()
-            print("Shape of Gp is", gp.shape)
+            #print("Shape of Hv is", len(Hv))
+            gp = group_product(Hv, v)
+           # print("Shape of Gp is",len(gp))
             trace_vhv.append(gp)
-            if abs(np.mean(trace_vhv) - trace) / (trace + 1e-6) < tol:
-                return trace_vhv
-            else:
-                trace = np.mean(trace_vhv)
+            
+           # if abs(np.mean(trace_vhv) - trace) / (trace + 1e-6) < tol:
+              #  return trace_vhv
+           # else:
+               # trace = np.mean(trace_vhv)
 
-        return trace_vhv
+        return self.names,np.sum(trace_vhv, axis = 0)
 
     def density(self, iter=100, n_v=1):
         """
