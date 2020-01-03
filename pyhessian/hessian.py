@@ -23,7 +23,7 @@ import math
 from torch.autograd import Variable
 import numpy as np
 
-from pyhessian.utils import group_product, group_add, normalization, get_params_grad, hessian_vector_product, orthnormal
+from pyhessian.utils import group_product, group_add, normalization, get_params_grad, hessian_vector_product, orthnormal,get_weight_mask
 
 
 class hessian():
@@ -34,7 +34,7 @@ class hessian():
         iii) the estimated eigenvalue density
     """
 
-    def __init__(self, model, criterion, data=None, dataloader=None, cuda=True):
+    def __init__(self, model, criterion, data=None, dataloader=None, cuda=True, drop = None):
         """
         model: the model that needs Hessain information
         criterion: the loss function
@@ -178,8 +178,11 @@ class hessian():
 
             #print("Len of v is", len(v)) 
             # generate Rademacher random variables
-            for v_i in v:
+            for param,v_i in zip(self.params,v):
                 v_i[v_i == 0] = -1
+                mask = get_weight_mask(param.abs(), 0 if drop is None else drop)
+                v_i = v_i * mask
+                
 
             if self.full_dataset:
                 _, Hv = self.dataloader_hv_product(v)
