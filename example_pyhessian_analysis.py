@@ -151,7 +151,7 @@ trace_dict = {}
 for name, trace in zip(names,traces):
     print(name, trace.item())
     trace_dict[name] = trace.item()
-    fout.write( str(name)+" " + str(trace.item))
+    fout.write( str(name)+" " + str(trace.item()))
 
 print(trace_dict)
 
