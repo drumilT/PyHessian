@@ -78,6 +78,7 @@ class hessian():
         self.params = params
         self.names = names
         self.gradsH = gradsH  # gradient used for Hessian computation
+        self.drop = drop
 
     def dataloader_hv_product(self, v):
 
@@ -180,7 +181,7 @@ class hessian():
             # generate Rademacher random variables
             for param,v_i in zip(self.params,v):
                 v_i[v_i == 0] = -1
-                mask = get_weight_mask(param.abs(), 0 if drop is None else drop)
+                mask = get_weight_mask(param.abs(), 0 if self.drop is None else self.drop)
                 v_i = v_i * mask
                 
 

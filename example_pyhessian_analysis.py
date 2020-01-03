@@ -133,13 +133,13 @@ if batch_num == 1:
                            criterion,
                            data=hessian_dataloader,
                            cuda=args.cuda,
-                           drop = drop)
+                           drop=drop)
 else:
     hessian_comp = hessian(model,
                            criterion,
                            dataloader=hessian_dataloader,
-                           cuda=args.cuda
-                           drop = drop)
+                           cuda=args.cuda,
+                           drop=drop)
 
 print(
     '********** finish data londing and begin Hessian computation **********')
