@@ -23,8 +23,9 @@ import math
 from torch.autograd import Variable
 import numpy as np
 
-from pyhessian.utils import group_product, group_add, normalization, get_params_grad, hessian_vector_product, orthnormal,get_weight_mask
+from pyhessian.utils import group_product, group_add, normalization, get_params_grad, hessian_vector_product, orthnormal, get_weight_mask, num_zero
 
+from copy import deepcopy
 
 class hessian():
     """
@@ -179,19 +180,28 @@ class hessian():
 
             #print("Len of v is", len(v)) 
             # generate Rademacher random variables
-            for param,v_i in zip(self.params,v):
+            for gradH,param,v_i in zip(self.gradsH,self.params,v):
                 v_i[v_i == 0] = -1
+               #print("SHape Before", v_i.shape)
                 mask = get_weight_mask(param.abs(), 0 if self.drop is None else self.drop)
                 v_i = v_i * mask
+                gradH *= mask
+               #print("Shape After",v_i.shape)
+               #print("% zeros =" ,num_zero(v_i)/float(v_i.numel()))
                 
 
+
+            v2 = [vi.detach().clone() for vi in v]
             if self.full_dataset:
                 _, Hv = self.dataloader_hv_product(v)
             else:
                 Hv = hessian_vector_product(self.gradsH, self.params, v)
             #print("Shape of Hv is", len(Hv))
-            gp = group_product(Hv, v)
-           # print("Shape of Gp is",len(gp))
+            gp =[g.cpu().item() for g in group_product(Hv, v2)]
+            #or vi in v2:
+                #rint("######################################")
+               #print("% of zeros after in v", float(num_zero(vi))/float(vi.numel()))
+          # print("Shape of Gp is",len(gp))
             trace_vhv.append(gp)
             
            # if abs(np.mean(trace_vhv) - trace) / (trace + 1e-6) < tol:

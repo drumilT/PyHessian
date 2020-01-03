@@ -24,6 +24,10 @@ from torch.autograd import Variable
 import numpy as np
 from math import ceil
 
+def num_zero(tensor):
+    if tensor is None: return 0
+    return (tensor ==0.0).int().sum()
+
 def percentile(tensor, p):
     """
     Returns percentile of tensor elements
@@ -47,8 +51,12 @@ def get_weight_mask(param_stats, drop):
         drop {float} -- percentile (values in [0,1])
     """    
     if param_stats is None: return None
-    threshold = percentile(param_stats, drop)
-    return (param_stats < threshold).float()
+    threshold = float('inf')
+    if drop!=0  :
+        threshold = percentile(param_stats, 1-drop)
+    mask =  (param_stats < threshold).float()
+    print(torch.sum(mask)/mask.numel())
+    return (param_stats <= threshold).float()
 
 def group_product(xs, ys):
     """
