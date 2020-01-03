@@ -24,6 +24,32 @@ from torch.autograd import Variable
 import numpy as np
 
 
+def percentile(tensor, p):
+    """
+    Returns percentile of tensor elements
+
+    Arguments:
+        tensor {torch.Tensor} -- a tensor to compute percentile
+        p {float} -- percentile (values in [0,1])
+    """
+    if p > 1.:
+        raise ValueError(f'Percentile parameter p expected to be in [0, 1], found {p:.5f}')
+    k = ceil(tensor.numel() * (1 - p))
+    if p == 0:
+        return -1 # by convention all param_stats >= 0
+    return torch.topk(tensor.view(-1), k)[0][-1]
+
+def get_weight_mask(param_stats, drop):
+    """
+    Returns mask for param_stats such that the top drop% are not included
+    Arguments:
+        param_stats {torch.Tensor} -- a tensor to compute w.r.t to param stats
+        drop {float} -- percentile (values in [0,1])
+    """    
+    if param_stats is None: return None
+    threshold = percentile(param_stats, drop)
+    return (param_stats < threshold).float()
+
 def group_product(xs, ys):
     """
     the inner product of two lists of variables xs,ys
