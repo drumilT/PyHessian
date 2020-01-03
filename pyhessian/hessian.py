@@ -74,8 +74,9 @@ class hessian():
                 loss.backward(create_graph=True)
 
         # this step is used to extract the parameters from the model
-        params, gradsH = get_params_grad(self.model)
+        names, params, gradsH = get_params_grad(self.model)
         self.params = params
+        self.names = names
         self.gradsH = gradsH  # gradient used for Hessian computation
 
     def dataloader_hv_product(self, v):
@@ -182,7 +183,10 @@ class hessian():
                 _, Hv = self.dataloader_hv_product(v)
             else:
                 Hv = hessian_vector_product(self.gradsH, self.params, v)
-            trace_vhv.append(group_product(Hv, v).cpu().item())
+            print("Shape of Hv is", Hv.shape)
+            gp = group_product(Hv, v).cpu().item()
+            print("Shape of Gp is", gp.shape)
+            trace_vhv.append(gp)
             if abs(np.mean(trace_vhv) - trace) / (trace + 1e-6) < tol:
                 return trace_vhv
             else:
