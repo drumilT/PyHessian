@@ -145,7 +145,7 @@ print(
     '********** finish data londing and begin Hessian computation **********')
 
 names,traces = hessian_comp.trace()
-fout = open("trace_values","w")
+fout = open("trace_values_for_drop="+ str(drop) ,"w")
 
 trace_dict = {}
 for name, trace in zip(names,traces):
